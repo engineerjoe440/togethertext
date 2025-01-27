@@ -2,7 +2,7 @@
 """
 WordWall - Simple, Self-Hosted, Collaborative Word Cloud Generator.
 
-(c) 2024 | Stanley Solutions | Joe Stanley
+(c) 2025 | Stanley Solutions | Joe Stanley
 License: MIT
 """
 ################################################################################

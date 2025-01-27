@@ -2,13 +2,14 @@
 """
 WordWall - Simple, Self-Hosted Collaborative Word Cloud Generator.
 
-(c) 2024 | Stanley Solutions | Joe Stanley
+(c) 2025 | Stanley Solutions | Joe Stanley
 License: MIT
 """
 ################################################################################
 
 from uuid import uuid4
 
+from fastapi import WebSocket
 from loguru import logger
 
 #pylint: disable=too-few-public-methods
@@ -71,3 +72,31 @@ class Manager:
             if wall.hash == wall_hash:
                 return wall
         return None
+
+ALL_SOCKETS: list[WebSocket] = []
+
+# Websocket Connection Manager
+class WebSocketManager:
+    """Management Object for WebSocket Connections."""
+    _active_connections: list[WebSocket] = ALL_SOCKETS
+
+    async def connect(self, websocket: WebSocket):
+        """Connect the Web Socket."""
+        await websocket.accept()
+        logger.info("Connection accepted for status updates.")
+        self._active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        """Disconnect the Web Socket."""
+        self._active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        """Send Individual Message to a Websocket."""
+        await websocket.send_text(message)
+
+    async def broadcast(self, data: dict):
+        """Broadcast a Dictionary."""
+        for connection in self._active_connections:
+            logger.info("Send data to active websockets.")
+            if isinstance(data, dict):
+                await connection.send_json(data)
